@@ -83,27 +83,55 @@ STATUS_WEIGHTS    = [60, 25, 10, 5]   # mostly active patients
 # ╚══════════════════════════════════════════════════════════════╝
 
 def seed_users(db: Session, count: int = 10) -> list[User]:
-    """Create fake clinical users."""
+    """Create demo users with plain text passwords."""
     logger.info(f"Seeding {count} users...")
     users = []
 
-    # Always create one admin first
-    admin = User(
-        username      = "admin",
-        email         = "admin@oncotrack.com",
-        password_hash = "hashed_admin_password",   # Phase 2 will use bcrypt
-        role          = "admin",
-        is_active     = True,
-    )
-    db.add(admin)
-    users.append(admin)
+    # Demo users — plain text passwords for demo project
+    demo_users = [
+        {
+            "username"      : "admin",
+            "email"         : "admin@oncotrack.com",
+            "password_hash" : "admin123",   # plain text for demo
+            "role"          : "admin",
+        },
+        {
+            "username"      : "dr_smith",
+            "email"         : "dr.smith@oncotrack.com",
+            "password_hash" : "demo123",
+            "role"          : "oncologist",
+        },
+        {
+            "username"      : "nurse_jane",
+            "email"         : "jane@oncotrack.com",
+            "password_hash" : "demo123",
+            "role"          : "nurse",
+        },
+        {
+            "username"      : "viewer1",
+            "email"         : "viewer@oncotrack.com",
+            "password_hash" : "demo123",
+            "role"          : "viewer",
+        },
+    ]
 
-    # Create the rest as clinical staff
-    for i in range(count - 1):
+    for demo in demo_users:
+        user = User(
+            username      = demo["username"],
+            email         = demo["email"],
+            password_hash = demo["password_hash"],
+            role          = demo["role"],
+            is_active     = True,
+        )
+        db.add(user)
+        users.append(user)
+
+    # Random clinical staff
+    for i in range(count - len(demo_users)):
         user = User(
             username      = fake.unique.user_name(),
             email         = fake.unique.email(),
-            password_hash = "hashed_password",
+            password_hash = "demo123",
             role          = random.choice(ROLES),
             is_active     = random.choices([True, False], weights=[90, 10])[0],
         )
@@ -113,7 +141,6 @@ def seed_users(db: Session, count: int = 10) -> list[User]:
     db.commit()
     logger.info(f"  created {len(users)} users")
     return users
-
 
 def seed_patients(db: Session, users: list[User], count: int = 50) -> list[Patient]:
     """Create fake patients with realistic oncology data."""

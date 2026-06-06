@@ -16,6 +16,7 @@ from contextlib import asynccontextmanager  # setup no-blocking
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from api.auth.router import router as auth_router
 from database.Connection import engine, Base
 
 # ── Logging setup ─────────────────────────────────────────────
@@ -108,3 +109,6 @@ def root():
         "docs"    : "http://localhost:8000/docs",
         "health"  : "http://localhost:8000/health"
     }
+
+# ── Routers ───────────────────────────────────────────────────
+app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
