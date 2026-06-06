@@ -17,6 +17,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from api.auth.router import router as auth_router
+from api.routers.patients import router as patients_router
 from database.Connection import engine, Base
 
 # ── Logging setup ─────────────────────────────────────────────
@@ -112,3 +113,4 @@ def root():
 
 # ── Routers ───────────────────────────────────────────────────
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+app.include_router(patients_router, prefix="/api/patients", tags=["Patients"])
