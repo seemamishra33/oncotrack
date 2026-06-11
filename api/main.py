@@ -18,6 +18,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from api.auth.router import router as auth_router
 from api.routers.patients import router as patients_router
+from api.routers.labs       import router as labs_router
+from api.routers.treatments import router as treatments_router
+from api.routers.visits     import router as visits_router
 from database.Connection import engine, Base
 
 # ── Logging setup ─────────────────────────────────────────────
@@ -112,5 +115,9 @@ def root():
     }
 
 # ── Routers ───────────────────────────────────────────────────
-app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
-app.include_router(patients_router, prefix="/api/patients", tags=["Patients"])
+
+app.include_router(auth_router,       prefix="/auth",             tags=["Authentication"])
+app.include_router(patients_router,   prefix="/api/patients",     tags=["Patients"])
+app.include_router(labs_router,       prefix="/api/labs",         tags=["Labs"])
+app.include_router(treatments_router, prefix="/api/treatments",   tags=["Treatments"])
+app.include_router(visits_router,     prefix="/api/visits",       tags=["Visits"])
