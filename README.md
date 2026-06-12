@@ -1,6 +1,6 @@
 # OncoTrack
 
-An oncology patient data management dashboard — built as a portfolio project demonstrating a full-stack Python architecture.
+An oncology patient data management dashboard — demonstrating a full-stack Python architecture.
 
 > **Note:** All patient data is 100% synthetic, generated with [Faker](https://faker.readthedocs.io/) for demonstration purposes only. No real patient information is used anywhere in this project.
 
