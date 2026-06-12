@@ -221,3 +221,28 @@ def api_is_alive() -> bool:
         return response.status_code == 200
     except requests.exceptions.RequestException:
         return False
+
+
+import streamlit as st
+
+def require_login():
+    """
+    Call this at the top of every page.
+    Redirects to login if user is not authenticated.
+    """
+    if not st.session_state.get("logged_in"):
+        st.warning("Please log in first")
+        st.page_link("app.py", label="Go to Login", icon="🔒")
+        st.stop()
+
+
+def show_user_sidebar():
+    """Shows logged-in user info and logout button in sidebar."""
+    user = st.session_state.user
+    with st.sidebar:
+        st.markdown(f"### {user['username']}")
+        st.caption(f"Role: {user['role']}")
+        if st.button("Logout", use_container_width=True):
+            st.session_state.logged_in = False
+            st.session_state.user = None
+            st.rerun()
