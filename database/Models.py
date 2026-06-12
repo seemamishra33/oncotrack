@@ -33,6 +33,7 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column  # defines how mo
 from database.Connection import Base      # the parent class all models inherit from
 
 
+
 # ── User ──────────────────────────────────────────────────────────────────────
 class User(Base):
     """
@@ -167,7 +168,7 @@ class LabResult(Base):
     unit           = Column(String(32),     nullable=False)  # e.g. "g/dL", "U/mL"
     reference_low  = Column(Numeric(10, 3))   # normal range lower bound
     reference_high = Column(Numeric(10, 3))   # normal range upper bound
-
+    is_abnormal = Column(Boolean)
     collected_at   = Column(DateTime, nullable=False)  # when blood was drawn
     resulted_at    = Column(DateTime)                  # when result came back (optional)
     notes          = Column(Text)

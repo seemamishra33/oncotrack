@@ -21,6 +21,7 @@ from api.routers.patients import router as patients_router
 from api.routers.labs       import router as labs_router
 from api.routers.treatments import router as treatments_router
 from api.routers.visits     import router as visits_router
+from api.middleware.audit import AuditMiddleware # middleware
 from database.Connection import engine, Base
 
 # ── Logging setup ─────────────────────────────────────────────
@@ -66,12 +67,23 @@ app = FastAPI(
 
 
 # ── CORS middleware ───────────────────────────────────────────
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins     = ["http://localhost:8501"],
+    allow_credentials = True,
+    allow_methods     = ["*"],
+    allow_headers     = ["*"],
+)
+
+# -- Audit middleware -----------------------------------------
+app.add_middleware(AuditMiddleware)
+
 # Allows Streamlit (port 8501) to call this API (port 8000)
 app.add_middleware(
     CORSMiddleware,
     allow_origins     = [
         "http://localhost:8501"   # Streamlit
-       # "http://localhost:3000",   # in case you add a React frontend later
+
     ],
     allow_credentials = True,
     allow_methods     = ["*"],     # GET, POST, PATCH, DELETE etc
