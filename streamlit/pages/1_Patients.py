@@ -11,7 +11,7 @@ CONCEPTS DEMONSTRATED:
 """
 
 import streamlit as st
-from api_client import require_login, show_user_sidebar, get_patients
+from api_client import require_login, show_user_sidebar, get_patients, create_patient
 
 st.set_page_config(page_title="Patients - OncoTrack", page_icon="🏥", layout="wide")
 
@@ -20,6 +20,64 @@ require_login()
 show_user_sidebar()
 
 st.title("Patients")
+
+
+# ╔══════════════════════════════════════════════════════════════╗
+# ║  ADD NEW PATIENT                                             ║
+# ╚══════════════════════════════════════════════════════════════╝
+
+with st.expander("➕ Add New Patient"):
+    with st.form("add_patient_form", clear_on_submit=True):
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            mrn        = st.text_input("MRN (e.g. MRN00051)")
+            first_name = st.text_input("First Name")
+            last_name  = st.text_input("Last Name")
+            dob        = st.date_input("Date of Birth")
+            gender     = st.selectbox("Gender", ["Male", "Female", "Other", "Prefer not to say"])
+
+        with col2:
+            cancer_type    = st.text_input("Cancer Type")
+            cancer_stage   = st.selectbox("Cancer Stage", ["I", "II", "III", "IV", "Unknown"])
+            diagnosis_date = st.date_input("Diagnosis Date")
+            status         = st.selectbox("Status", ["Active", "Remission", "Deceased", "Lost to Follow-up"])
+
+        with col3:
+            phone   = st.text_input("Phone")
+            email   = st.text_input("Email")
+            address = st.text_area("Address", height=100)
+
+        submitted = st.form_submit_button("Create Patient", use_container_width=True)
+
+        if submitted:
+            # Basic validation
+            if not mrn or not first_name or not last_name or not cancer_type:
+                st.error("MRN, First Name, Last Name and Cancer Type are required.")
+            else:
+                new_patient = {
+                    "mrn"            : mrn.upper(),
+                    "first_name"     : first_name,
+                    "last_name"      : last_name,
+                    "dob"            : str(dob),
+                    "gender"         : gender,
+                    "cancer_type"    : cancer_type,
+                    "cancer_stage"   : cancer_stage,
+                    "diagnosis_date" : str(diagnosis_date),
+                    "status"         : status,
+                    "phone"          : phone or None,
+                    "email"          : email or None,
+                    "address"        : address or None,
+                }
+
+                result = create_patient(new_patient)
+                if result:
+                    st.success(f"Created patient {result['mrn']} - {result['first_name']} {result['last_name']}")
+                    st.rerun()
+                else:
+                    st.error("Failed to create patient. MRN may already exist.")
+
+st.divider()
 
 # ╔══════════════════════════════════════════════════════════════╗
 # ║  FILTERS                                                      ║
