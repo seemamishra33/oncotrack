@@ -1,12 +1,10 @@
 """
+app.py
+======
+Entry point for the OncoTrack Streamlit dashboard.
 
-
-Shows a login page first. Once logged in, shows the dashboard.
-
-CONCEPTS DEMONSTRATED:
-    - st.session_state : persists data across reruns
-    - st.form           : groups inputs, submits together
-    - Conditional rendering based on auth state
+Shows a login page first. Once logged in, shows a home page
+with quick navigation to the main sections.
 """
 
 import streamlit as st
@@ -19,13 +17,13 @@ st.set_page_config(
 )
 
 
-# -- Initialize session state (runs once per session) -----------
+# -- Initialize session state ------------------------------------
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
     st.session_state.user = None
 
 
-# -- Check API connection ----------------------------------------
+# -- Check API connection ------------------------------------------
 if not api_is_alive():
     st.error("Cannot connect to API. Make sure FastAPI is running on port 8000.")
     st.stop()
@@ -39,13 +37,11 @@ def show_login_page():
     st.title("OncoTrack")
     st.subheader("Oncology Patient Data Management")
 
-    # Center the login form using columns
     col1, col2, col3 = st.columns([1, 1, 1])
 
     with col2:
         st.markdown("### Login")
 
-        # st.form groups inputs — nothing submits until the button is clicked
         with st.form("login_form"):
             username = st.text_input("Username")
             password = st.text_input("Password", type="password")
@@ -54,14 +50,12 @@ def show_login_page():
             if submitted:
                 result = login(username, password)
                 if result:
-                    # Save to session state — persists across reruns
                     st.session_state.logged_in = True
                     st.session_state.user = result
-                    st.rerun()   # force immediate rerun to show dashboard
+                    st.rerun()
                 else:
                     st.error("Incorrect username or password")
 
-        # Demo credentials helper
         with st.expander("Demo Credentials"):
             st.markdown("""
             | Role        | Username    | Password  |
@@ -74,33 +68,62 @@ def show_login_page():
 
 
 # ╔══════════════════════════════════════════════════════════════╗
-# ║  DASHBOARD (after login)                                     ║
+# ║  HOME PAGE (after login)                                     ║
 # ╚══════════════════════════════════════════════════════════════╝
 
-def show_dashboard():
+def show_home_page():
     user = st.session_state.user
 
-    # Sidebar — shows user info and logout
     with st.sidebar:
-        st.markdown(f"### Welcome, {user['username']}")
+        st.markdown(f"### {user['username']}")
         st.caption(f"Role: {user['role']}")
         if st.button("Logout", use_container_width=True):
             st.session_state.logged_in = False
             st.session_state.user = None
-            #st.rerun()
+            st.rerun()
 
-    st.title("OncoTrack Dashboard")
-    st.success(f"Logged in as **{user['username']}** ({user['role']})")
+    st.title("OncoTrack")
+    st.subheader(f"Welcome back, {user['username']}")
 
-    # Quick test — fetch and display patients
-    st.subheader("Patients")
-    patients = get_patients(limit=10)
+    # -- Quick stats -------------------------------------------------
+    patients = get_patients(limit=500)
+    active = len([p for p in patients if p["status"] == "Active"])
 
-    if patients:
-        st.write(f"Showing {len(patients)} of many patients")
-        st.dataframe(patients, use_container_width=True)
-    else:
-        st.warning("No patients found.")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total Patients", len(patients))
+    col2.metric("Active Cases", active)
+    col3.metric("Your Role", user["role"].title())
+
+    st.divider()
+
+    # -- Navigation cards ----------------------------------------------
+    st.subheader("Quick Navigation")
+
+    nav1, nav2, nav3 = st.columns(3)
+
+    with nav1:
+        with st.container(border=True):
+            st.markdown("#### 👥 Patients")
+            st.write("Browse, search, and manage patient records.")
+            if st.button("Go to Patients", use_container_width=True):
+                st.switch_page("pages/1_Patients.py")
+
+    with nav2:
+        with st.container(border=True):
+            st.markdown("#### 📊 Dashboard")
+            st.write("View aggregate metrics and trends across all patients.")
+            if st.button("Go to Dashboard", use_container_width=True):
+                st.switch_page("pages/2_Dashboard.py")
+
+    with nav3:
+        with st.container(border=True):
+            st.markdown("#### ➕ Add Patient")
+            st.write("Quickly register a new patient record.")
+            if st.button("Go to Add Patient", use_container_width=True):
+                st.switch_page("pages/1_Patients.py")
+
+    st.divider()
+    st.caption("OncoTrack —  All patient data is synthetic.")
 
 
 # ╔══════════════════════════════════════════════════════════════╗
@@ -108,6 +131,6 @@ def show_dashboard():
 # ╚══════════════════════════════════════════════════════════════╝
 
 if st.session_state.logged_in:
-    show_dashboard()
+    show_home_page()
 else:
     show_login_page()
