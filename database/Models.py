@@ -27,7 +27,7 @@ from datetime import date, datetime
 from sqlalchemy import (
     Column, Integer, String, Date, DateTime, Text,
     Boolean, Enum, ForeignKey, Numeric, SmallInteger,
-    func, JSON, SMALLINT                 # func.now() = SQL's NOW() function
+    func, JSON, SMALLINT , Computed                # func.now() = SQL's NOW() function
 )
 from sqlalchemy.orm import relationship, Mapped, mapped_column  # defines how models link to each other
 from database.Connection import Base      # the parent class all models inherit from
@@ -168,7 +168,7 @@ class LabResult(Base):
     unit           = Column(String(32),     nullable=False)  # e.g. "g/dL", "U/mL"
     reference_low  = Column(Numeric(10, 3))   # normal range lower bound
     reference_high = Column(Numeric(10, 3))   # normal range upper bound
-    is_abnormal = Column(Boolean)
+    is_abnormal = Column(Boolean, Computed("value < reference_low OR value > reference_high"), default=None)
     collected_at   = Column(DateTime, nullable=False)  # when blood was drawn
     resulted_at    = Column(DateTime)                  # when result came back (optional)
     notes          = Column(Text)

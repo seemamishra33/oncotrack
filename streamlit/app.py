@@ -34,7 +34,7 @@ if not api_is_alive():
 # ╚══════════════════════════════════════════════════════════════╝
 
 def show_login_page():
-    st.title("OncoTrack")
+    st.title("🏥 OncoTrack")
     st.subheader("Oncology Patient Data Management")
 
     col1, col2, col3 = st.columns([1, 1, 1])
@@ -118,7 +118,7 @@ def show_home_page():
     with nav3:
         with st.container(border=True):
             st.markdown("#### ➕ Add Patient")
-            st.write("Quickly register a new patient record.")
+            st.write("Register a new patient record.")
             if st.button("Go to Add Patient", use_container_width=True):
                 st.switch_page("pages/1_Patients.py")
 
